@@ -81,6 +81,18 @@ class MathModelTest {
     }
 
     @Test
+    void rejectsSecondScatterSymbol() {
+        List<Symbol> symbols = List.of(
+                new Symbol(A, "A", "Ace", SymbolType.REGULAR),
+                new Symbol(WILD, "S2", "Scatter 2", SymbolType.SCATTER),
+                new Symbol(SCATTER, "S", "Scatter", SymbolType.SCATTER));
+
+        assertThatThrownBy(() -> new MathModel("test", 10, 2, symbols, REELS, List.of(), PAYTABLE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("one scatter");
+    }
+
+    @Test
     void rejectsNonDenseSymbolIds() {
         List<Symbol> symbols = List.of(new Symbol(1, "A", "Ace", SymbolType.REGULAR));
 

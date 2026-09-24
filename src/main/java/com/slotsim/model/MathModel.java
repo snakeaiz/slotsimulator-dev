@@ -60,6 +60,7 @@ public record MathModel(
                     + symbols.get(i) + " at index " + i);
         }
         require(symbols.stream().filter(Symbol::isWild).count() <= 1, "At most one wild symbol is supported");
+        require(symbols.stream().filter(Symbol::isScatter).count() <= 1, "At most one scatter symbol is supported");
 
         for (int reel = 0; reel < reelSet.size(); reel++) {
             ReelStrip strip = reelSet.reel(reel);

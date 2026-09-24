@@ -59,7 +59,10 @@ public final class Paytable {
         return Arrays.stream(scatterPays).anyMatch(pay -> pay > 0);
     }
 
-    int maxScatterCount() {
+    /**
+     * Highest scatter count listed in the paytable, or 0 if scatters never pay.
+     */
+    public int maxScatterCount() {
         return scatterPays.length - 1;
     }
 
