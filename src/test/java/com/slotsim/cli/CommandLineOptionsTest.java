@@ -55,5 +55,8 @@ class CommandLineOptionsTest {
                 .hasMessageContaining("Invalid number");
         assertThatThrownBy(() -> CommandLineOptions.parse(new String[]{"--threads", "0"}))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> CommandLineOptions.parse(new String[]{"--threads", "99999999999"}))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid number for --threads");
     }
 }

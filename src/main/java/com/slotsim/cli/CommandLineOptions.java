@@ -50,7 +50,7 @@ public record CommandLineOptions(
             String option = args[i];
             switch (option) {
                 case "--rounds" -> rounds = parseLong(option, value(args, ++i, option));
-                case "--threads" -> threads = Math.toIntExact(parseLong(option, value(args, ++i, option)));
+                case "--threads" -> threads = parseInt(option, value(args, ++i, option));
                 case "--seed" -> seed = parseLong(option, value(args, ++i, option));
                 case "--config" -> config = Path.of(value(args, ++i, option));
                 case "--report" -> reportDir = Path.of(value(args, ++i, option));
@@ -74,6 +74,14 @@ public record CommandLineOptions(
             throw new IllegalArgumentException("Missing value for " + option);
         }
         return args[index];
+    }
+
+    private static int parseInt(String option, String value) {
+        try {
+            return Integer.parseInt(value.replace("_", ""));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid number for " + option + ": " + value, e);
+        }
     }
 
     private static long parseLong(String option, String value) {
