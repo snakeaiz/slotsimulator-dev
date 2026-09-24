@@ -6,16 +6,21 @@ import com.slotsim.engine.CompositeWinEvaluator;
 import com.slotsim.engine.WinEvaluator;
 import com.slotsim.math.FullCycleCalculator;
 import com.slotsim.model.MathModel;
+import com.slotsim.play.ConsoleGame;
 import com.slotsim.report.MarkdownReportRenderer;
 import com.slotsim.report.SimulationReport;
+import com.slotsim.rng.SplittableRandomGenerator;
 import com.slotsim.simulation.SimulationConfig;
 import com.slotsim.simulation.SimulationResult;
 import com.slotsim.simulation.SimulationRunner;
 import com.slotsim.stats.RoundStatistics;
 import com.slotsim.stats.WinBreakdown;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -59,6 +64,12 @@ public final class SlotSimulatorApp {
         WinEvaluator evaluator = CompositeWinEvaluator.forModel(model);
         SimulationRunner runner = new SimulationRunner(model, evaluator);
 
+        if (options.play()) {
+            BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+            new ConsoleGame(model, evaluator, new SplittableRandomGenerator(options.seed()), options.balance(),
+                    stdin, System.out).run();
+            return;
+        }
         if (options.benchmark()) {
             benchmark(runner, options);
             return;

@@ -28,6 +28,10 @@ application {
     mainClass = "com.slotsim.SlotSimulatorApp"
 }
 
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+}
+
 tasks.test {
     useJUnitPlatform()
     testLogging {

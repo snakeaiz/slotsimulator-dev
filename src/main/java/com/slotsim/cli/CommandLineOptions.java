@@ -12,6 +12,8 @@ import java.util.Optional;
  * @param config    math model file; the bundled model is used when empty
  * @param reportDir directory for the Markdown report; no file is written when empty
  * @param benchmark compare a single-threaded run with a parallel one
+ * @param play      play rounds interactively in the console instead of simulating
+ * @param balance   starting credit balance for {@code play}
  * @param help      print usage and exit
  */
 public record CommandLineOptions(
@@ -21,9 +23,12 @@ public record CommandLineOptions(
         Optional<Path> config,
         Optional<Path> reportDir,
         boolean benchmark,
+        boolean play,
+        long balance,
         boolean help) {
 
     public static final long DEFAULT_ROUNDS = 10_000_000L;
+    public static final long DEFAULT_BALANCE = 1_000L;
 
     public static final String USAGE = """
             Usage: slot-simulator [options]
@@ -34,6 +39,8 @@ public record CommandLineOptions(
               --config <file>  math model JSON (default: bundled Fruit Slot model)
               --report <dir>   also write the report as Markdown into this directory
               --benchmark      compare 1 thread with --threads on the same seed
+              --play           play rounds in the console, Enter = spin, q = quit
+              --balance <n>    starting balance for --play (default 1000)
               --help           print this help
             """;
 
@@ -44,6 +51,8 @@ public record CommandLineOptions(
         Path config = null;
         Path reportDir = null;
         boolean benchmark = false;
+        boolean play = false;
+        long balance = DEFAULT_BALANCE;
         boolean help = false;
 
         for (int i = 0; i < args.length; i++) {
@@ -55,6 +64,8 @@ public record CommandLineOptions(
                 case "--config" -> config = Path.of(value(args, ++i, option));
                 case "--report" -> reportDir = Path.of(value(args, ++i, option));
                 case "--benchmark" -> benchmark = true;
+                case "--play" -> play = true;
+                case "--balance" -> balance = parseLong(option, value(args, ++i, option));
                 case "--help", "-h" -> help = true;
                 default -> throw new IllegalArgumentException("Unknown option: " + option);
             }
@@ -65,8 +76,14 @@ public record CommandLineOptions(
         if (threads <= 0) {
             throw new IllegalArgumentException("--threads must be positive");
         }
+        if (balance <= 0) {
+            throw new IllegalArgumentException("--balance must be positive");
+        }
+        if (play && benchmark) {
+            throw new IllegalArgumentException("--play and --benchmark cannot be combined");
+        }
         return new CommandLineOptions(rounds, threads, seed, Optional.ofNullable(config),
-                Optional.ofNullable(reportDir), benchmark, help);
+                Optional.ofNullable(reportDir), benchmark, play, balance, help);
     }
 
     private static String value(String[] args, int index, String option) {

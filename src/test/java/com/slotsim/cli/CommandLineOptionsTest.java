@@ -18,6 +18,23 @@ class CommandLineOptionsTest {
         assertThat(options.config()).isEmpty();
         assertThat(options.reportDir()).isEmpty();
         assertThat(options.benchmark()).isFalse();
+        assertThat(options.play()).isFalse();
+        assertThat(options.balance()).isEqualTo(1_000L);
+    }
+
+    @Test
+    void parsesPlayMode() {
+        CommandLineOptions options = CommandLineOptions.parse(new String[]{"--play", "--balance", "500"});
+
+        assertThat(options.play()).isTrue();
+        assertThat(options.balance()).isEqualTo(500L);
+    }
+
+    @Test
+    void rejectsPlayWithBenchmark() {
+        assertThatThrownBy(() -> CommandLineOptions.parse(new String[]{"--play", "--benchmark"}))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("cannot be combined");
     }
 
     @Test

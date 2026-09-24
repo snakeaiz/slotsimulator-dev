@@ -18,6 +18,7 @@ computes by enumerating every reel stop combination.
 ./gradlew run                       # 10M rounds on all cores, report to the console
 ./gradlew run --args="--rounds 10_000_000 --threads 8 --seed 2026 --report reports"
 ./gradlew run --args="--benchmark --seed 2026"   # 1 thread vs all threads
+./gradlew run --args="--play"                    # play rounds in the console
 ./gradlew run --args="--help"
 ```
 
@@ -29,6 +30,24 @@ computes by enumerating every reel stop combination.
 | `--config <file>` | bundled `games/fruit-slot.json` | Math model to simulate |
 | `--report <dir>` | none | Also write the report as Markdown into this directory |
 | `--benchmark` | off | Time a single-threaded run against a parallel run |
+| `--play` | off | Play rounds interactively: Enter = spin, `q` = quit |
+| `--balance <n>` | `1000` | Starting balance for `--play` |
+
+### Play mode
+
+`--play` runs the same engine one round at a time, so you can watch it play real rounds.
+Winning cells are shown in brackets:
+
+```
+> Round 18, stops [15, 10, 15]
+
+   L2    H3    L2
+  [W1]  [H1]  [W1]
+   L3    H2    L3
+
+  Line 2: 3x H1 = 800
+  Win: 800   Balance: 1,635
+```
 
 ## Results
 
@@ -112,6 +131,7 @@ stats       RoundStatistics (exact sums), StatisticsSummary (RTP, SD, CI), WinBr
 math        FullCycleCalculator (exact theoretical figures)
 simulation  SimulationRunner (parallel, deterministic), SimulationConfig, SimulationResult
 report      Markdown report
+play        Interactive console game on the same engine
 cli         Command-line options
 ```
 
@@ -180,7 +200,7 @@ With `n` rounds, `w` the win of a round and `b` the bet:
 
 ## Tests
 
-`./gradlew test` runs 118 tests. They focus on the parts where mistakes hide:
+`./gradlew test` runs 123 tests. They focus on the parts where mistakes hide:
 
 - **Symbol positioning.** Reel pictures for known stops, wrap-around at the end of every reel,
   and reuse of the window.
