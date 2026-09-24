@@ -3,12 +3,16 @@ package com.slotsim.math;
 import com.slotsim.config.MathModelLoader;
 import com.slotsim.engine.CompositeWinEvaluator;
 import com.slotsim.model.MathModel;
+import com.slotsim.model.ReelSet;
+import com.slotsim.model.ReelStrip;
 import com.slotsim.stats.RoundStatistics;
 import com.slotsim.stats.StatisticsSummary;
 import com.slotsim.stats.WinBreakdown;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,6 +65,17 @@ class FullCycleCalculatorTest {
 
         assertThat(breakdown.rtpContribution(model.symbol(code).id(), totalBet))
                 .isCloseTo(expectedReturn, within(1e-10));
+    }
+
+    @Test
+    void checksCycleSizeWithoutOverflowing() {
+        int[] longReel = new int[3_000_000];
+        ReelSet huge = new ReelSet(List.of(new ReelStrip(longReel), new ReelStrip(longReel),
+                new ReelStrip(longReel), new ReelStrip(longReel)));
+
+        assertThat(FullCycleCalculator.canEnumerate(model.reelSet(), 191_052)).isTrue();
+        assertThat(FullCycleCalculator.canEnumerate(model.reelSet(), 191_051)).isFalse();
+        assertThat(FullCycleCalculator.canEnumerate(huge, Long.MAX_VALUE)).isFalse();
     }
 
     @Test

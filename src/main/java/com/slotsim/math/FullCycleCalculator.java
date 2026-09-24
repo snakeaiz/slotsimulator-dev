@@ -34,6 +34,22 @@ public final class FullCycleCalculator {
         this.maxCycleSize = maxCycleSize;
     }
 
+    /**
+     * Whether the full cycle has at most {@code maxCycleSize} combinations. Checks the limit before
+     * each multiplication, so it also works for reel sets whose cycle size would overflow a long.
+     */
+    public static boolean canEnumerate(ReelSet reelSet, long maxCycleSize) {
+        long size = 1;
+        for (int reel = 0; reel < reelSet.size(); reel++) {
+            int length = reelSet.reel(reel).length();
+            if (size > maxCycleSize / length) {
+                return false;
+            }
+            size *= length;
+        }
+        return true;
+    }
+
     public RoundStatistics calculate() {
         return calculate(WinListener.NONE);
     }
@@ -43,10 +59,9 @@ public final class FullCycleCalculator {
      */
     public RoundStatistics calculate(WinListener listener) {
         ReelSet reelSet = model.reelSet();
-        long cycleSize = reelSet.cycleSize();
-        if (cycleSize > maxCycleSize) {
-            throw new IllegalStateException("Full cycle of " + cycleSize + " combinations exceeds the limit of "
-                    + maxCycleSize + "; use a simulation instead");
+        if (!canEnumerate(reelSet, maxCycleSize)) {
+            throw new IllegalStateException("Full cycle exceeds the limit of " + maxCycleSize
+                    + " combinations; use a simulation instead");
         }
 
         int reels = reelSet.size();

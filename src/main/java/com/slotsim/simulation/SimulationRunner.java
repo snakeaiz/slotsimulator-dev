@@ -43,9 +43,10 @@ public final class SimulationRunner {
         RoundStatistics statistics = new RoundStatistics();
         WinBreakdown breakdown = new WinBreakdown(model.symbols().size());
         try (ExecutorService executor = Executors.newFixedThreadPool(config.threads())) {
-            for (Future<ChunkResult> chunk : executor.invokeAll(chunks)) {
-                statistics.merge(chunk.get().statistics());
-                breakdown.merge(chunk.get().breakdown());
+            for (Future<ChunkResult> future : executor.invokeAll(chunks)) {
+                ChunkResult chunk = future.get();
+                statistics.merge(chunk.statistics());
+                breakdown.merge(chunk.breakdown());
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

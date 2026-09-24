@@ -73,7 +73,7 @@ public final class SlotSimulatorApp {
     }
 
     private static Optional<SimulationReport.Theoretical> theoretical(MathModel model, WinEvaluator evaluator) {
-        if (model.reelSet().cycleSize() > FullCycleCalculator.DEFAULT_MAX_CYCLE_SIZE) {
+        if (!FullCycleCalculator.canEnumerate(model.reelSet(), FullCycleCalculator.DEFAULT_MAX_CYCLE_SIZE)) {
             return Optional.empty();
         }
         WinBreakdown breakdown = new WinBreakdown(model.symbols().size());
