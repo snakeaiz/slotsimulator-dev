@@ -1,0 +1,43 @@
+{
+  "name": "Fruit Slot",
+  "bet": 10,
+  "rows": 3,
+  "symbols": [
+    {"code": "W1", "name": "Wild", "type": "WILD"},
+    {"code": "H1", "name": "Seven", "type": "REGULAR"},
+    {"code": "H2", "name": "Bell", "type": "REGULAR"},
+    {"code": "H3", "name": "Bar", "type": "REGULAR"},
+    {"code": "L1", "name": "Banana", "type": "REGULAR"},
+    {"code": "L2", "name": "Orange", "type": "REGULAR"},
+    {"code": "L3", "name": "Plum", "type": "REGULAR"},
+    {"code": "L4", "name": "Cherry", "type": "REGULAR"},
+    {"code": "SCA", "name": "Scatter", "type": "SCATTER"}
+  ],
+  "reels": [
+    ["L4", "L3", "L2", "SCA", "H2", "H2", "H2", "L1", "L1", "L1", "H3", "H1", "H2", "L2", "L2", "L2", "W1", "L3", "L3", "L3", "H3", "H3", "H3", "L4", "L4", "L4", "H3", "L1", "L2", "L4", "SCA", "L3", "L3", "L3", "H3", "L1", "L2", "L3", "SCA", "L2", "L2", "L2", "L2", "H3", "H3", "H3", "L4", "L4", "L4", "SCA", "L1", "L1", "L1", "H1", "L2", "L2", "L2", "SCA", "L3", "L3", "L3"],
+    ["L4", "L3", "L2", "SCA", "H2", "H2", "H2", "L1", "L1", "L1", "H3", "H1", "H2", "L2", "L2", "L2", "W1", "L3", "L3", "L3", "H3", "H3", "H3", "L4", "L4", "L4", "H3", "L1", "L2", "L4", "SCA", "L3", "L3", "L3", "H3", "L1", "L2", "L3", "SCA", "L2", "L4", "H3", "H3", "H3", "SCA", "L2", "L2", "L2", "L2", "SCA", "L3", "L3", "L3", "H1", "L4", "L4", "L4", "L3"],
+    ["L4", "L3", "L2", "SCA", "H2", "H2", "H2", "L1", "L1", "L1", "H3", "H1", "H2", "L2", "L2", "L2", "W1", "L3", "L3", "L3", "H3", "H3", "H3", "L4", "L4", "L4", "H3", "L1", "L2", "L4", "H3", "L3", "L3", "L3", "H3", "L1", "L2", "L3", "SCA", "L2", "H2", "H3", "H3", "H3", "L2", "L2", "L2", "L1", "L1", "SCA", "L2", "L2", "L2", "L1"]
+  ],
+  "paylines": [
+    {"id": 1, "rows": [0, 0, 0]},
+    {"id": 2, "rows": [1, 1, 1]},
+    {"id": 3, "rows": [2, 2, 2]},
+    {"id": 4, "rows": [0, 1, 2]},
+    {"id": 5, "rows": [2, 1, 0]}
+  ],
+  "paytable": {
+    "lines": [
+      {"symbol": "W1", "count": 3, "pay": 2000},
+      {"symbol": "H1", "count": 3, "pay": 800},
+      {"symbol": "H2", "count": 3, "pay": 500},
+      {"symbol": "H3", "count": 3, "pay": 80},
+      {"symbol": "L1", "count": 3, "pay": 50},
+      {"symbol": "L2", "count": 3, "pay": 20},
+      {"symbol": "L3", "count": 3, "pay": 15},
+      {"symbol": "L4", "count": 3, "pay": 10}
+    ],
+    "scatter": [
+      {"count": 3, "pay": 200}
+    ]
+  }
+}
