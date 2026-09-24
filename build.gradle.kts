@@ -34,4 +34,10 @@ tasks.test {
         events("failed")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
+    afterSuite(KotlinClosure2<TestDescriptor, TestResult, Unit>({ suite, result ->
+        if (suite.parent == null) {
+            println("Tests: ${result.testCount}, passed: ${result.successfulTestCount}, " +
+                    "failed: ${result.failedTestCount}, skipped: ${result.skippedTestCount}")
+        }
+    }))
 }
