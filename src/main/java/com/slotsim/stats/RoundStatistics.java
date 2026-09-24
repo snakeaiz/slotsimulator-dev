@@ -6,7 +6,9 @@ package com.slotsim.stats;
  * Wins are whole credits, so the sums are kept as {@code long} and are exact: there is no
  * floating-point drift, and merging the totals of several threads gives the same result
  * in any order. With a maximum round win of {@code W} credits, {@code sumOfSquares} stays within
- * {@code Long.MAX_VALUE} for about {@code 9.2e18 / W^2} rounds (1.4e12 rounds for Fruit Slot).
+ * {@code Long.MAX_VALUE} for at least {@code 9.2e18 / W^2} rounds (1.4e12 rounds for Fruit Slot).
+ * Beyond that the arithmetic fails with an {@link ArithmeticException} instead of silently
+ * wrapping around and corrupting the reported figures.
  * <p>
  * Not thread-safe: each thread accumulates its own instance and the results are {@link #merge merged}.
  */
@@ -19,9 +21,12 @@ public final class RoundStatistics {
     private long maxWin;
 
     public void record(long win) {
+        if (win < 0) {
+            throw new IllegalArgumentException("Win must not be negative: " + win);
+        }
         rounds++;
-        totalWin += win;
-        sumOfSquares += win * win;
+        totalWin = Math.addExact(totalWin, win);
+        sumOfSquares = Math.addExact(sumOfSquares, Math.multiplyExact(win, win));
         if (win > 0) {
             winningRounds++;
             if (win > maxWin) {
@@ -31,9 +36,9 @@ public final class RoundStatistics {
     }
 
     public RoundStatistics merge(RoundStatistics other) {
-        rounds += other.rounds;
-        totalWin += other.totalWin;
-        sumOfSquares += other.sumOfSquares;
+        rounds = Math.addExact(rounds, other.rounds);
+        totalWin = Math.addExact(totalWin, other.totalWin);
+        sumOfSquares = Math.addExact(sumOfSquares, other.sumOfSquares);
         winningRounds += other.winningRounds;
         maxWin = Math.max(maxWin, other.maxWin);
         return this;

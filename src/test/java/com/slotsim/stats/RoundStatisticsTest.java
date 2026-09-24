@@ -59,6 +59,22 @@ class RoundStatisticsTest {
     }
 
     @Test
+    void failsLoudlyInsteadOfOverflowing() {
+        RoundStatistics statistics = record(3_000_000_000L);
+
+        assertThatThrownBy(() -> statistics.record(3_000_000_000L))
+                .isInstanceOf(ArithmeticException.class);
+        assertThatThrownBy(() -> statistics.record(4_000_000_000L))
+                .isInstanceOf(ArithmeticException.class);
+    }
+
+    @Test
+    void rejectsNegativeWin() {
+        assertThatThrownBy(() -> new RoundStatistics().record(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void cannotSummarizeWithoutRounds() {
         assertThatThrownBy(() -> new RoundStatistics().summarize(10))
                 .isInstanceOf(IllegalStateException.class);
