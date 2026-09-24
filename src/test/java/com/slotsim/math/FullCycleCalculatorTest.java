@@ -5,7 +5,10 @@ import com.slotsim.engine.CompositeWinEvaluator;
 import com.slotsim.model.MathModel;
 import com.slotsim.stats.RoundStatistics;
 import com.slotsim.stats.StatisticsSummary;
+import com.slotsim.stats.WinBreakdown;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,6 +39,28 @@ class FullCycleCalculatorTest {
         assertThat(statistics.winningRounds()).isEqualTo(25_449);
         assertThat(statistics.maxWin()).isEqualTo(2_500);
         assertThat(summary.volatilityIndex()).isCloseTo(4.867627, within(1e-6));
+    }
+
+    /** Per-symbol return, PAR sheet cells V8:V16. */
+    @ParameterizedTest(name = "{0} returns {1}")
+    @CsvSource({
+            "W1,  0.005234177083",
+            "H1,  0.03559240416",
+            "H2,  0.1949730963",
+            "H3,  0.2300944246",
+            "L1,  0.06346439713",
+            "L2,  0.1230555032",
+            "L3,  0.05507662835",
+            "L4,  0.01410610724",
+            "SCA, 0.2119841718"})
+    void reproducesPerSymbolReturnOfParSheet(String code, double expectedReturn) {
+        WinBreakdown breakdown = new WinBreakdown(model.symbols().size());
+        RoundStatistics statistics = new FullCycleCalculator(model, CompositeWinEvaluator.forModel(model))
+                .calculate(breakdown);
+        long totalBet = statistics.rounds() * model.bet();
+
+        assertThat(breakdown.rtpContribution(model.symbol(code).id(), totalBet))
+                .isCloseTo(expectedReturn, within(1e-10));
     }
 
     @Test

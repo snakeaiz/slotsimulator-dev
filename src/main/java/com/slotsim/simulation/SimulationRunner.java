@@ -5,6 +5,7 @@ import com.slotsim.engine.WinEvaluator;
 import com.slotsim.model.MathModel;
 import com.slotsim.rng.SplittableRandomGenerator;
 import com.slotsim.stats.RoundStatistics;
+import com.slotsim.stats.WinBreakdown;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -37,12 +38,14 @@ public final class SimulationRunner {
 
     public SimulationResult run(SimulationConfig config) {
         long start = System.nanoTime();
-        List<Callable<RoundStatistics>> chunks = chunks(config);
+        List<Callable<ChunkResult>> chunks = chunks(config);
 
-        RoundStatistics total = new RoundStatistics();
+        RoundStatistics statistics = new RoundStatistics();
+        WinBreakdown breakdown = new WinBreakdown(model.symbols().size());
         try (ExecutorService executor = Executors.newFixedThreadPool(config.threads())) {
-            for (Future<RoundStatistics> chunk : executor.invokeAll(chunks)) {
-                total.merge(chunk.get());
+            for (Future<ChunkResult> chunk : executor.invokeAll(chunks)) {
+                statistics.merge(chunk.get().statistics());
+                breakdown.merge(chunk.get().breakdown());
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -50,12 +53,12 @@ public final class SimulationRunner {
         } catch (ExecutionException e) {
             throw new IllegalStateException("Simulation failed", e.getCause());
         }
-        return new SimulationResult(config, total, Duration.ofNanos(System.nanoTime() - start));
+        return new SimulationResult(config, statistics, breakdown, Duration.ofNanos(System.nanoTime() - start));
     }
 
-    private List<Callable<RoundStatistics>> chunks(SimulationConfig config) {
+    private List<Callable<ChunkResult>> chunks(SimulationConfig config) {
         SplittableRandom seeds = new SplittableRandom(config.seed());
-        List<Callable<RoundStatistics>> chunks = new ArrayList<>();
+        List<Callable<ChunkResult>> chunks = new ArrayList<>();
         for (long chunk = 0; chunk < config.chunks(); chunk++) {
             long seed = seeds.nextLong();
             int rounds = config.roundsInChunk(chunk);
@@ -64,12 +67,16 @@ public final class SimulationRunner {
         return chunks;
     }
 
-    private RoundStatistics playChunk(long seed, int rounds) {
+    private ChunkResult playChunk(long seed, int rounds) {
         SpinEngine engine = new SpinEngine(model, evaluator, new SplittableRandomGenerator(seed));
         RoundStatistics statistics = new RoundStatistics();
+        WinBreakdown breakdown = new WinBreakdown(model.symbols().size());
         for (int round = 0; round < rounds; round++) {
-            statistics.record(engine.spin());
+            statistics.record(engine.spin(breakdown));
         }
-        return statistics;
+        return new ChunkResult(statistics, breakdown);
+    }
+
+    private record ChunkResult(RoundStatistics statistics, WinBreakdown breakdown) {
     }
 }

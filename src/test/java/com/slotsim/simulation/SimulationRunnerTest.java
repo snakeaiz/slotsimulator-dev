@@ -34,6 +34,17 @@ class SimulationRunnerTest {
     }
 
     @Test
+    void breakdownAddsUpToTotalWin() {
+        SimulationResult result = runner.run(new SimulationConfig(100_000, 2, 7));
+
+        long symbolWins = 0;
+        for (int symbol = 0; symbol < result.breakdown().symbolCount(); symbol++) {
+            symbolWins += result.breakdown().wins(symbol);
+        }
+        assertThat(symbolWins).isEqualTo(result.statistics().totalWin());
+    }
+
+    @Test
     void differentSeedsPlayDifferentRounds() {
         RoundStatistics first = runner.run(new SimulationConfig(100_000, 2, 1)).statistics();
         RoundStatistics second = runner.run(new SimulationConfig(100_000, 2, 2)).statistics();
